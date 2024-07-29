@@ -11,7 +11,7 @@ on:
 jobs:
   version:
     name: Create version number
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
