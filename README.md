@@ -46,7 +46,7 @@ You need to have Node.js / NPM installed locally.
 npm install
 ```
 
-2. Execute the project: -
+2. Execute the project:
 
 ```
 npm run start
