@@ -1,8 +1,6 @@
 name: Telegram Notification on Release or Main Update
 
 on:
-  push:
-    branches: [main]
   release:
     types: [created]
 
