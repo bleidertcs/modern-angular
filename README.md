@@ -58,6 +58,10 @@ Open your browser and access **http://localhost:4200** (Angular default port).
 
 If you want run the project locally, run the following command
 
+command
+
 ```
 ng server -o
 ```
+
+otro cambio
