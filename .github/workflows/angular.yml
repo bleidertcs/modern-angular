@@ -55,27 +55,29 @@ jobs:
         with:
           name: gitversion
 
-      - name: Extract version information (replace with your command)
-        run:
-          | # Replace with the appropriate command to extract the version from version.txt
-          VERSION=$(cat version.txt)
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV  # Or set an environment variable
+      - name: Get version.txt
+        uses: actions/download-artifact@v2
+        with:
+          name: gitversion
+      - name: Create new file without newline char from version.txt
+        run: tr -d '\n' < version.txt > version1.txt
+      - name: Read version
+        id: version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: version1.txt
 
       - uses: actions/checkout@v4
       - uses: fregante/setup-git-user@v2
       - run: git push
-
-      - name: Create Tag
-        run: git tag -a v$VERSION -m "Build $VERSION" # Use the extracted version
-      - run: git push origin v$VERSION
 
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v$VERSION
-          release_name: Build $VERSION
+          #   tag_name: v$VERSION
+          #   release_name: Build ${{VERSION}}
           draft: false
           prerelease: false
 
@@ -84,3 +86,6 @@ jobs:
         with:
           name: build
           path: dist
+          token: ${{ secrets.GITHUB_TOKEN  }}
+          commit: ${{ github.sha }}
+          tag: ${{ steps.version.outputs.content }}
