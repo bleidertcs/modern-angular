@@ -71,31 +71,31 @@ jobs:
       - uses: fregante/setup-git-user@v2
       - run: git push
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.version.outputs.content }}
-          release_name: Build ${{ steps.version.outputs.content }}
-          body: |
-            This is the release description for Build ${{ steps.version.outputs.content }}.
-            You can add more details here.
+      # - name: Create Release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: v${{ steps.version.outputs.content }}
+      #     release_name: Build ${{ steps.version.outputs.content }}
+      #     body: |
+      #       This is the release description for Build ${{ steps.version.outputs.content }}.
+      #       You can add more details here.
 
-            **Latest Commit:**
-            $(git log --pretty=format:'- %s' -n 1 HEAD)
+      #       **Latest Commit:**
+      #       $(git log --pretty=format:'- %s' -n 1 HEAD)
 
-          draft: false
-          prerelease: false
+      #     draft: false
+      #     prerelease: false
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: dist
-          token: ${{ secrets.GITHUB_TOKEN  }}
-          commit: ${{ github.sha }}
-          tag: ${{ steps.version.outputs.content }}
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: build
+      #     path: dist
+      #     token: ${{ secrets.GITHUB_TOKEN  }}
+      #     commit: ${{ github.sha }}
+      #     tag: ${{ steps.version.outputs.content }}
 
       - name: Deploy
         run: |
