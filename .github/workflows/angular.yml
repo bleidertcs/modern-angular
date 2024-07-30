@@ -88,4 +88,5 @@ jobs:
           path: dist
           token: ${{ secrets.GITHUB_TOKEN  }}
           commit: ${{ github.sha }}
+          tag_name: ${{ steps.version.outputs.content }}
           tag: ${{ steps.version.outputs.content }}
