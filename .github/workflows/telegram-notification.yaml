@@ -1,0 +1,27 @@
+name: Telegram Notification on Release or Main Update
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [created]
+
+jobs:
+  notify-telegram:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Send Telegram notification
+        uses: appleboy/telegram-actions@master
+        with:
+          chat_id: ${{ secrets.CHAT_ID }}
+          telegram_token: ${{ secret.TELEGRAM_TOKEN }}
+          message: |
+            **New release created!**
+            * **Repository:** ${{ github.repository }}
+            * **Tag:** ${{ github.ref_name }}
+            * **Author:** ${{ github.actor }}
+            * **Commit:** ${{ github.sha }}
+            * **Link:** ${{ github.server_url }}{{ github.repository }}/releases/tag/${{ github.ref_name }}
