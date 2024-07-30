@@ -76,8 +76,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          #   tag_name: v$VERSION
-          #   release_name: Build ${{VERSION}}
+          tag_name: v${{ steps.version.outputs.content }}
+          release_name: Build ${{ steps.version.outputs.content }}
+          body: |
+            This is the release description for Build ${{ steps.version.outputs.content }}.
+            You can add more details here.
+
+            Commit Messages:
+            $(git log --pretty=format:'- %s' --no-merges HEAD^..)
+
           draft: false
           prerelease: false
 
@@ -88,5 +95,4 @@ jobs:
           path: dist
           token: ${{ secrets.GITHUB_TOKEN  }}
           commit: ${{ github.sha }}
-          tag_name: ${{ steps.version.outputs.content }}
           tag: ${{ steps.version.outputs.content }}
