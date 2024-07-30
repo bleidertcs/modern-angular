@@ -8,6 +8,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
   version:
     name: Create version number
@@ -30,8 +31,8 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.7
       - name: Create version.txt with nuGetVersion
-        run: echo ${{ steps.gitversion.outputs.nuGetVersion  }} > version.txt
-      - name: Upload version.txt
+        run: echo ${{ steps.gitversion.outputs.nuGetVersion }} > version.txt
+      - name: Upload version.txt as artifact
         uses: actions/upload-artifact@v2
         with:
           name: gitversion
@@ -49,21 +50,32 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: gitversion
+
+      - name: Extract version information (replace with your command)
+        run:
+          | # Replace with the appropriate command to extract the version from version.txt
+          VERSION=$(cat version.txt)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV  # Or set an environment variable
+
       - uses: actions/checkout@v4
       - uses: fregante/setup-git-user@v2
       - run: git push
 
       - name: Create Tag
-        run: git tag -a v${{ steps.version.outputs.content }} -m "Build ${{ steps.version.outputs.content }}"
-      - run: git push origin v${{ steps.version.outputs.content }}
+        run: git tag -a v$VERSION -m "Build $VERSION" # Use the extracted version
+      - run: git push origin v$VERSION
 
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.version.outputs.content }}
-          release_name: Build ${{ steps.version.outputs.content }}
+          tag_name: v$VERSION
+          release_name: Build $VERSION
           draft: false
           prerelease: false
 
