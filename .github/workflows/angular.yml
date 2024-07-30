@@ -82,8 +82,8 @@ jobs:
             This is the release description for Build ${{ steps.version.outputs.content }}.
             You can add more details here.
 
-            Commit Messages:
-            $(git log --pretty=format:'- %s' --no-merges HEAD^..)
+            **Latest Commit:**
+            $(git log --pretty=format:'- %s' -n 1 HEAD)
 
           draft: false
           prerelease: false
@@ -96,3 +96,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN  }}
           commit: ${{ github.sha }}
           tag: ${{ steps.version.outputs.content }}
+
+      - name: Deploy
+        run: |
+          npm install
+          npm run-script deploy
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist/workshop
