@@ -82,8 +82,8 @@ jobs:
             This is the release description for Build ${{ steps.version.outputs.content }}.
             You can add more details here.
 
-            Commit Messages:
-            $(git log --pretty=format:'- %s' --no-merges HEAD^..)
+            **Latest Commit:**
+            $(git log --pretty=format:'- %s' -n 1 HEAD)
 
           draft: false
           prerelease: false
