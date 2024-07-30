@@ -54,16 +54,16 @@ jobs:
       - run: git push
 
       - name: Create Tag
-        run: git tag -a v${{ github.run_number }} -m "Build ${{ github.run_number }}"
-      - run: git push origin v${{ github.run_number }}
+        run: git tag -a v${{ steps.version.outputs.content }} -m "Build ${{ steps.version.outputs.content }}"
+      - run: git push origin v${{ steps.version.outputs.content }}
 
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Build ${{ github.run_number }}
+          tag_name: v${{ steps.version.outputs.content }}
+          release_name: Build ${{ steps.version.outputs.content }}
           draft: false
           prerelease: false
 
