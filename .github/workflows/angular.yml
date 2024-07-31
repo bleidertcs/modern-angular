@@ -1,73 +1,64 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Angular Build, Tag and Release
+name: Build and Release Angular App
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  build-and-release: # Combined build and release job
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
+
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Fetch all history for all tags and branches (optional)
-        run: |
-          git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git fetch --prune --depth=10000  # Uncomment if needed for detailed commit history
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+    - name: Install dependencies
+      run: npm install
 
-      - name: Install dependencies
-        run: npm i
+    - name: Build Angular app
+      run: npm run build --prod
 
-      - name: Build
-        run: npm run build
+    - name: Create tag
+      id: tag_version
+      run: |
+        TAG_NAME=v$(date +'%Y%m%d%H%M%S')
+        echo "::set-output name=TAG_NAME::$TAG_NAME"
+        git tag $TAG_NAME
+        git push origin $TAG_NAME
 
-      - name: Generate Version with GitVersion (optional)
-        uses: gittools/actions/gitversion/setup@v0.9.7
-        with:
-          versionSpec: "5.x" # Customize versioning scheme if needed
-      - name: Use GitVersion to generate tag (optional)
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.7
-      - name: Create a more informative tag message (optional)
-        run: |
-          git tag -a v${{ steps.gitversion.outputs.MajorMinorPatch }} -m "Build ${{ steps.gitversion.outputs.MajorMinorPatch }} - ${{ github.sha.substring(0,7) }}: ${{ github.base_ref }}...HEAD - ${{ github.event.commit.message }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag_version.outputs.TAG_NAME }}
+        release_name: Release ${{ steps.tag_version.outputs.TAG_NAME }}
+        body: |
+          ## Commits
+          ${{ github.event.pull_request.body }}
+        draft: false
+        prerelease: false
 
-      - name: Push Tag (if using GitVersion)
-        run: git push origin v${{ steps.gitversion.outputs.MajorMinorPatch }}
+    - name: Upload release assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist
+        asset_name: source_code.zip
+        asset_content_type: application/zip
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.gitversion.outputs.MajorMinorPatch  || github.sha }} # Use GitVersion or commit SHA as tag
-          release_name: Build ${{ steps.gitversion.outputs.MajorMinorPatch  || github.sha }} # Use GitVersion or commit SHA in release name
-          body: |
-            **Commits:**
-            $(git log --pretty=format:'- %s (%h)' origin/main..HEAD)
-
-          draft: false
-          prerelease: false
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: dist
 
       # - name: Create Release
       #   uses: actions/create-release@v1
