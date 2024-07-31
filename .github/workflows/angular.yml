@@ -18,7 +18,7 @@ jobs:
       pull-requests: write
       repository-projects: write
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Fetch all history for all tags and branches
         run: |
           git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
@@ -106,4 +106,4 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: dist/workshop
+          FOLDER: dist/angular-shop
