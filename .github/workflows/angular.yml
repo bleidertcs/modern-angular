@@ -4,14 +4,11 @@
 name: Angular Build, Tag and Release
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
-  version:
-    name: Create version number
+  build-and-release: # Combined build and release job
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,60 +16,58 @@ jobs:
       repository-projects: write
     steps:
       - uses: actions/checkout@v3
-      - name: Fetch all history for all tags and branches
+
+      - name: Fetch all history for all tags and branches (optional)
         run: |
           git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git fetch --prune --depth=10000
-      - name: Install GitVersion
+          git fetch --prune --depth=10000  # Uncomment if needed for detailed commit history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Build
+        run: npm run build
+
+      - name: Generate Version with GitVersion (optional)
         uses: gittools/actions/gitversion/setup@v0.9.7
         with:
-          versionSpec: "5.x"
-      - name: Use GitVersion
+          versionSpec: "5.x" # Customize versioning scheme if needed
+      - name: Use GitVersion to generate tag (optional)
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.7
-      - name: Create version.txt with nuGetVersion
-        run: echo ${{ steps.gitversion.outputs.nuGetVersion }} > version.txt
-      - name: Upload version.txt as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: gitversion
-          path: version.txt
+      - name: Create a more informative tag message (optional)
+        run: |
+          git tag -a v${{ steps.gitversion.outputs.MajorMinorPatch }} -m "Build ${{ steps.gitversion.outputs.MajorMinorPatch }} - ${{ github.sha.substring(0,7) }}: ${{ github.base_ref }}...HEAD - ${{ github.event.commit.message }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-      - run: npm ci
-      - run: npm run build
+      - name: Push Tag (if using GitVersion)
+        run: git push origin v${{ steps.gitversion.outputs.MajorMinorPatch }}
 
-      - name: Download artifact
-        uses: actions/download-artifact@v2
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: gitversion
+          tag_name: ${{ steps.gitversion.outputs.MajorMinorPatch  || github.sha }} # Use GitVersion or commit SHA as tag
+          release_name: Build ${{ steps.gitversion.outputs.MajorMinorPatch  || github.sha }} # Use GitVersion or commit SHA in release name
+          body: |
+            **Commits:**
+            $(git log --pretty=format:'- %s (%h)' origin/main..HEAD)
 
-      - name: Get version.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: gitversion
-      - name: Create new file without newline char from version.txt
-        run: tr -d '\n' < version.txt > version1.txt
-      - name: Read version
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: version1.txt
+          draft: false
+          prerelease: false
 
-      - uses: actions/checkout@v4
-      - uses: fregante/setup-git-user@v2
-      - run: |
-          git pull origin main
-          git pull origin dev
-          git push origin HEAD:main
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: dist
 
       # - name: Create Release
       #   uses: actions/create-release@v1
@@ -100,13 +95,13 @@ jobs:
       #     commit: ${{ github.sha }}
       #     tag: ${{ steps.version.outputs.content }}
 
-      - name: Deploy
-        run: |
-          npm install
-          npm run-script deploy
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@releases/v3
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: dist/angular-shop
+      # - name: Deploy
+      #   run: |
+      #     npm install
+      #     npm run-script deploy
+      # - name: Deploy
+      #   uses: JamesIves/github-pages-deploy-action@releases/v3
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     BRANCH: gh-pages
+      #     FOLDER: dist/angular-shop
