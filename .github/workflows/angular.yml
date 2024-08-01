@@ -64,7 +64,10 @@ jobs:
 
       - uses: actions/checkout@v4
       - uses: fregante/setup-git-user@v2
-      # - run: git push origin HEAD:main
+
+      - name: Get last commit message
+        id: last_commit
+        run: echo "LAST_COMMIT=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
       - name: Create Release
         uses: actions/create-release@v1
@@ -72,20 +75,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ steps.version.outputs.content }}
-          release_name: Build ${{ steps.version.outputs.content }}
+          release_name: "Build v${{ steps.version.outputs.content }}"
           body: |
-            This is the release description for Build
+            **This is the release description for Build v${{ steps.version.outputs.content }}.**
             You can add more details here.
-            # v${{ steps.version.outputs.content }} (latest)
-
-            ## Highlights
-            - Add high-impact changes here
-
-            ## Bug Fixes
-            - List bug fixes here with issue references
 
             **Latest Commit:**
-            $(git log --pretty=format:'- %s' -n 1 HEAD)
+            ${{ env.LAST_COMMIT }}
 
           draft: false
           prerelease: false
@@ -95,7 +91,7 @@ jobs:
         with:
           name: build
           path: dist
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN  }}
           commit: ${{ github.sha }}
           tag: ${{ steps.version.outputs.content }}
 
