@@ -14,4 +14,10 @@ jobs:
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.CHAT_ID }}
-          message: 'This is a test message from GitHub Actions!'
+          message: |
+            **New release created!**
+  #          * **Repository:** ${{ github.repository }}
+  #          * **Tag:** ${{ github.ref_name }}
+  #          * **Author:** ${{ github.actor }}
+  #          * **Commit:** ${{ github.sha }}
+  #          * **Link:** ${{ github.server_url }}{{ github.repository }}/releases/tag/${{ github.ref_name }}
