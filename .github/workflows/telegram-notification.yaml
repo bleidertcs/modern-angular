@@ -17,4 +17,4 @@ jobs:
             * **Author:** ${{ github.actor }}
             * **Commit:** ${{ github.sha }}
             * **Commit message2:** ${{ github.event.commits[0].message }}
-            * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref_name  || 'latest' }}"
+            * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref  || 'latest' }}"
