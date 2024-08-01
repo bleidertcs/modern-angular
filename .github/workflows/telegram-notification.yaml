@@ -1,21 +1,19 @@
 name: Telegram Notification on Release or Main Update
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - main
 
 jobs:
-  notify-telegram:
+  send-message:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Send Telegram notification
-        uses: appleboy/telegram-actions@master
+      - name: Send Telegram Message
+        uses: s00d/fast-telegram-action@v9
         with:
-          chat_id: ${{ secrets.CHAT_ID }}
-          telegram_token: ${{ secrets.TELEGRAM_TOKEN }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          to: ${{ secrets.CHAT_ID }}
           message: |
             **New release created!**
   #          * **Repository:** ${{ github.repository }}
