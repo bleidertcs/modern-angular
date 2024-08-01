@@ -14,8 +14,7 @@ jobs:
         with:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.CHAT_ID }}
-          message: |
-            **New release created!**
+          message: '**New release created!**'
   #          * **Repository:** ${{ github.repository }}
   #          * **Tag:** ${{ github.ref_name }}
   #          * **Author:** ${{ github.actor }}
