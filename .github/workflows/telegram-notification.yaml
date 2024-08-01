@@ -1,3 +1,4 @@
+
 name: Telegram Notification on Release or Main Update
 
 on:
@@ -10,4 +11,9 @@ jobs:
     steps:
       - name: Send Telegram message
         run: |
-          curl -s "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -d chat_id="${{ secrets.CHAT_ID }}" -d text="**New release created!**"
+          curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.CHAT_ID }}&text=**New activity on ${{ github.repository }}!**
+            * **Repository:** ${{ github.repository }}
+            * **Tag:** ${{ github.ref_name }} (if applicable)
+            * **Author:** ${{ github.actor }}
+            * **Commit:** ${{ github.sha }} (shortened)
+            * **Link:** ${{ github.server_url }}{{ github.repository }}/releases/tag/${{ github.ref_name  || 'latest' }}"
