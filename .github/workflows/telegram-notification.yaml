@@ -16,8 +16,8 @@ jobs:
           to: ${{ secrets.CHAT_ID }}
           message: |
             **New release created!**
-  #          * **Repository:** ${{ github.repository }}
-  #          * **Tag:** ${{ github.ref_name }}
-  #          * **Author:** ${{ github.actor }}
-  #          * **Commit:** ${{ github.sha }}
-  #          * **Link:** ${{ github.server_url }}{{ github.repository }}/releases/tag/${{ github.ref_name }}
+            * **Repository:** ${{ github.repository }}
+            * **Tag:** ${{ github.ref_name }}
+            * **Author:** ${{ github.actor }}
+            * **Commit:** ${{ github.sha }}
+            * **Link:** ${{ github.server_url }}{{ github.repository }}/releases/tag/${{ github.ref_name }}
