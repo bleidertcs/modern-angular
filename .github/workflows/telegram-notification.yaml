@@ -3,8 +3,6 @@ name: Telegram Notification on Release or Main Update
 on:
   release:
     types: [published]
-  pull_request:
-    branches: [main]
 
 jobs:
   send_notification:
