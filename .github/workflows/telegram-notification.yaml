@@ -11,9 +11,6 @@ jobs:
     steps:
       - name: Send Telegram message
         run: curl -X POST "https://api.telegram.org/bot7188472189:AAEfz3Z-FWS9L6gAisqRtFrSKmQq4QRfhOs/sendMessage" -d "chat_id=-4258699715&text=**New release created!**"
-        env:
-          TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
   #          * **Repository:** ${{ github.repository }}
   #          * **Tag:** ${{ github.ref_name }}
   #          * **Author:** ${{ github.actor }}
