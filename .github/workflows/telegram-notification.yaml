@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Telegram message
-        run: curl -s https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage -d chat_id=${{ secrets.CHAT_ID }} -d text="**New release created!**"
+        run: curl -s https://api.telegram.org/bot${{secrets.TELEGRAM_TOKEN}}/sendMessage -d chat_id=${{secrets.CHAT_ID}} -d text="**New release created!**"
