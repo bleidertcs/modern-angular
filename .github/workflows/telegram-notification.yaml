@@ -15,7 +15,7 @@ jobs:
         uses: appleboy/telegram-actions@master
         with:
           chat_id: ${{ secrets.CHAT_ID }}
-          telegram_token: ${{ secret.TELEGRAM_TOKEN }}
+          telegram_token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             **New release created!**
   #          * **Repository:** ${{ github.repository }}
