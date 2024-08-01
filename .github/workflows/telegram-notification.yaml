@@ -1,23 +1,21 @@
+
 name: Telegram Notification on Release or Main Update
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  send-message:
+  send_notification:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Telegram Message
-        uses: s00d/fast-telegram-action@v9
-        with:
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          to: ${{ secrets.CHAT_ID }}
-          message: |
-            **New release created!**
-            * **Repository:** ${{ github.repository }}
-            * **Tag:** ${{ github.ref_name }}
-            * **Author:** ${{ github.actor }}
-            * **Commit:** ${{ github.sha }}
-            * **Link:** ${{ github.server_url }}{{ github.repository }}/releases/tag/${{ github.ref_name }}
+      - name: Send Telegram message
+        run: curl -s https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage -d chat_id=${{ secrets.CHAT_ID }} -d text="**New release created!**"
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+  #          * **Repository:** ${{ github.repository }}
+  #          * **Tag:** ${{ github.ref_name }}
+  #          * **Author:** ${{ github.actor }}
+  #          * **Commit:** ${{ github.sha }}
+  #          * **Link:** ${{ github.server_url }}{{ github.repository }}/releases/tag/${{ github.ref_name }}
