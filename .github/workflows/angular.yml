@@ -31,7 +31,7 @@ jobs:
           base_version=$(echo "${{ steps.gitversion.outputs.nuGetVersion }}" | sed -E 's/[^0-9.]+//g')
           echo "::set-output name=base_version::$base_version"
       - name: Create version.txt with base version
-        run: echo "${{ steps.extract_version.outputs.base_version }}" > version.txt
+        run: echo "${{ steps.extract_version.outputs.base_version }}"  > version.txt
       - name: Upload version.txt as artifact
         uses: actions/upload-artifact@v2
         with:
@@ -40,6 +40,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: version
     steps:
       - uses: actions/checkout@v3
@@ -76,41 +78,42 @@ jobs:
         run: echo "LAST_COMMIT=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
       - name: Create Release
-        uses: actions/create-release@v1
+      - uses: actions/checkout@v3
+      - uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name:  v${{ steps.extract_version.outputs.base_version }}
-          release_name: "Build v${{ steps.extract_version.outputs.base_version }}"
-          body: |
+          artifacts:  v${{ steps.version.outputs.content }}
+          bodyFile: |
             **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
             * **Release Name:** ${{ github.event.release.name }}
-            * **Tag:** ${{ github.event.release.tag_name }}
             * **Author:** ${{ github.actor }}
             * **Commit:** ${{ github.sha }}
             * **Commit message 2:** ${{ github.event.commits[0].message }}
             * **Latest Commit 3:** ${{ env.LAST_COMMIT }}
             * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref  || 'latest' }}
 
-          draft: false
+          draft: true
           prerelease: false
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: build
-          path: dist
+          path: |
+            dist
           token: ${{ secrets.GITHUB_TOKEN  }}
           commit: ${{ github.sha }}
-          tag: ${{ steps.version.outputs.content }}
 
       - name: Deploy
         run: |
           npm install
           npm run-script build
+          ls
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v4
+        
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
@@ -125,7 +128,6 @@ jobs:
           curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.CHAT_ID }}&text=**🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
             * **Release Name:** ${{ github.event.release.name }}
-            * **Tag:** ${{ github.event.release.tag_name }}
             * **Author:** ${{ github.actor }}
             * **Commit:** ${{ github.sha }}
             * **Commit message 2:** ${{ github.event.commits[0].message }}
