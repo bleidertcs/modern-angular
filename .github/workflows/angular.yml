@@ -31,17 +31,11 @@ jobs:
           base_version=$(echo "${{ steps.gitversion.outputs.nuGetVersion }}" | sed -E 's/[^0-9.]+//g')
           echo "::set-output name=base_version::$base_version"
       - name: Create version.txt with base version
-        run: echo "${{ steps.extract_version.outputs.base_version }}"  > version.txt
-      - name: Upload version.txt as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: gitversion
-          path: version.txt
+        run: echo "${{ steps.extract_version.outputs.base_version }}"
+
 
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     needs: version
     steps:
       - uses: actions/checkout@v3
@@ -53,23 +47,6 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: gitversion
-
-      - name: Get version.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: gitversion
-      - name: Create new file without newline char from version.txt
-        run: tr -d '\n' < version.txt > version1.txt
-      - name: Read version
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: version1.txt
-
       - uses: actions/checkout@v4
       - uses: fregante/setup-git-user@v2
 
@@ -78,12 +55,13 @@ jobs:
         run: echo "LAST_COMMIT=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
       - name: Create Release
-      - uses: ncipollo/release-action@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          artifacts:  v${{ steps.version.outputs.content }}
-          bodyFile: |
+          tag_name:  v${{ steps.extract_version.outputs.base_version }}
+          release_name: "Build v${{ steps.extract_version.outputs.base_version }}"
+          body: |
             **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
             * **Release Name:** ${{ github.event.release.name }}
