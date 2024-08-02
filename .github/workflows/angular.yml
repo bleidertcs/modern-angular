@@ -32,11 +32,11 @@ jobs:
           echo "::set-output name=base_version::$base_version"
       - name: Create version.txt with base version
         run: echo "${{ steps.extract_version.outputs.base_version }}" > version.txt
-      - name: Upload version.txt as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: gitversion
-          path: version.txt
+    #  - name: Upload version.txt as artifact
+    #    uses: actions/upload-artifact@v2
+    #    with:
+    #      name: gitversion
+    #      path: version.txt
 
   build:
     runs-on: ubuntu-latest
@@ -80,7 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-         # tag_name:  v${{ steps.extract_version.outputs.base_version }}
+          tag_name:  v${{ steps.extract_version.outputs.base_version }}
           release_name: "Build v${{ steps.extract_version.outputs.base_version }}"
           body: |
             **🚀 New Release Published!**
