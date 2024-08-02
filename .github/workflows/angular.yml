@@ -74,9 +74,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v$(cut -d ' ' -f 1 version1.txt) # Extract first word from version1.txt
-          release_name: "**🚀 New Release Published!** v$(cut -d ' ' -f 1 version1.txt)" # Same as above
+          tag_name: v$(awk '{print $1}' version1.txt)
+          release_name: "Build v$(awk '{print $1}' version1.txt)"
           body: |
+            **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
             * **Release Name:** ${{ github.event.release.name }}
             * **Tag:** ${{ github.event.release.tag_name }}
@@ -111,6 +112,7 @@ jobs:
 
   send_notification:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Send Telegram message
         run: |
@@ -122,4 +124,4 @@ jobs:
             * **Commit:** ${{ github.sha }}
             * **Commit message 2:** ${{ github.event.commits[0].message }}
             * **Latest Commit 3:** ${{ env.LAST_COMMIT }}
-            * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref  || 'latest' }}"
+            * **Link:** ${{github.server_url}}/{{github.repository}}/releases/tag/${{github.ref || 'latest' }}"
