@@ -80,7 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name:  v${{ steps.extract_version.outputs.base_version }}
+         # tag_name:  v${{ steps.extract_version.outputs.base_version }}
           release_name: "Build v${{ steps.extract_version.outputs.base_version }}"
           body: |
             **🚀 New Release Published!**
@@ -100,17 +100,20 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build
-          path: dist
+          path: |
+            dist
           token: ${{ secrets.GITHUB_TOKEN  }}
           commit: ${{ github.sha }}
-          tag: ${{ steps.version.outputs.content }}
+        #  tag: ${{ steps.version.outputs.content }}
 
       - name: Deploy
         run: |
           npm install
           npm run-script build
+          ls
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v4
+        
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
