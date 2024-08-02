@@ -74,10 +74,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.version.outputs.content }}
-          release_name: "Build v${{ steps.version.outputs.content }}"
+          tag_name: v$(cut -d ' ' -f 1 version1.txt) # Extract first word from version1.txt
+          release_name: "**🚀 New Release Published!** v$(cut -d ' ' -f 1 version1.txt)" # Same as above
           body: |
-            **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
             * **Release Name:** ${{ github.event.release.name }}
             * **Tag:** ${{ github.event.release.tag_name }}
