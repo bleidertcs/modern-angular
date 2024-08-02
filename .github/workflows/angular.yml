@@ -77,11 +77,15 @@ jobs:
           tag_name: v${{ steps.version.outputs.content }}
           release_name: "Build v${{ steps.version.outputs.content }}"
           body: |
-            **This is the release description for Build v${{ steps.version.outputs.content }}.**
-            You can add more details here.
-
-            **Latest Commit:**
-            ${{ env.LAST_COMMIT }}
+            **🚀 New Release Published!**
+            * **Repository:** ${{ github.repository }}
+            * **Release Name:** ${{ github.event.release.name }}
+            * **Tag:** ${{ github.event.release.tag_name }}
+            * **Author:** ${{ github.actor }}
+            * **Commit:** ${{ github.sha }}
+            * **Commit message 2:** ${{ github.event.commits[0].message }}
+            * **Latest Commit 3:** ${{ env.LAST_COMMIT }}
+            * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref  || 'latest' }}
 
           draft: false
           prerelease: false
@@ -105,3 +109,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
           FOLDER: dist
+
+  send_notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram message
+        run: |
+          curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -d "chat_id=${{ secrets.CHAT_ID }}&text=**🚀 New Release Published!**
+            * **Repository:** ${{ github.repository }}
+            * **Release Name:** ${{ github.event.release.name }}
+            * **Tag:** ${{ github.event.release.tag_name }}
+            * **Author:** ${{ github.actor }}
+            * **Commit:** ${{ github.sha }}
+            * **Commit message 2:** ${{ github.event.commits[0].message }}
+            * **Latest Commit 3:** ${{ env.LAST_COMMIT }}
+            * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref  || 'latest' }}"
