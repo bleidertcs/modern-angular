@@ -78,7 +78,6 @@ jobs:
         run: echo "LAST_COMMIT=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
       - name: Create Release
-      - uses: actions/checkout@v3
       - uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
