@@ -25,23 +25,17 @@ jobs:
       - name: Use GitVersion
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.9.7
-      - name: Extract base version
-        id: extract_version
-        run: |
-          base_version=$(echo "${{ steps.gitversion.outputs.nuGetVersion }}" | sed -E 's/[^0-9.]+//g')
-          echo "::set-output name=base_version::$base_version"
-      - name: Create version.txt with base version
-        run: echo "${{ steps.extract_version.outputs.base_version }}"  > version.txt
+      - name: Create version.txt with nuGetVersion
+        run: echo ${{ steps.gitversion.outputs.nuGetVersion }} > version.txt
       - name: Upload version.txt as artifact
         uses: actions/upload-artifact@v2
         with:
           name: gitversion
           path: version.txt
 
+
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     needs: version
     steps:
       - uses: actions/checkout@v3
@@ -51,24 +45,24 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - run: npm ci
-      - run: npm run build
+      - run: npm run-script build
 
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: gitversion
+      - name: Zip artifact for deployment
+        run: zip dist.zip ./* -r
 
-      - name: Get version.txt
-        uses: actions/download-artifact@v2
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
         with:
-          name: gitversion
-      - name: Create new file without newline char from version.txt
-        run: tr -d '\n' < version.txt > version1.txt
-      - name: Read version
-        id: version
-        uses: juliangruber/read-file-action@v1
+          name: node-app
+          path: ./dist
+          
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        
         with:
-          path: version1.txt
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist
 
       - uses: actions/checkout@v4
       - uses: fregante/setup-git-user@v2
@@ -77,14 +71,27 @@ jobs:
         id: last_commit
         run: echo "LAST_COMMIT=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
+      - name: Get version.txt
+        uses: actions/download-artifact@v2
+        with:
+          name: gitversion
+
+      - name: Create new file without newline char from version.txt
+        run: tr -d '\n' < version.txt > version1.txt
+      - name: Read version
+        id: version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: version1.txt
+
       - name: Create Release
-      - uses: actions/checkout@v3
-      - uses: ncipollo/release-action@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          artifacts:  v${{ steps.version.outputs.content }}
-          bodyFile: |
+          tag_name: v13
+          release_name: "Build v13"
+          body: |
             **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
             * **Release Name:** ${{ github.event.release.name }}
@@ -94,30 +101,8 @@ jobs:
             * **Latest Commit 3:** ${{ env.LAST_COMMIT }}
             * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref  || 'latest' }}
 
-          draft: true
+          draft: false
           prerelease: false
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: |
-            dist
-          token: ${{ secrets.GITHUB_TOKEN  }}
-          commit: ${{ github.sha }}
-
-      - name: Deploy
-        run: |
-          npm install
-          npm run-script build
-          ls
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@releases/v4
-        
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: dist
 
   send_notification:
     runs-on: ubuntu-latest
