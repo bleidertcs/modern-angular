@@ -47,6 +47,9 @@ jobs:
       - run: npm ci
       - run: npm run-script build
 
+      - name: Zip artifact for deployment
+        run: zip dist.zip ./* -r
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
@@ -86,8 +89,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v12
-          release_name: "Build v12"
+          tag_name: v13
+          release_name: "Build v13"
           body: |
             **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
