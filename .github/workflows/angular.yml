@@ -86,8 +86,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' version1.txt)
-          release_name: "Build v$(awk '{print $1}' version1.txt)"
+          tag_name: v12
+          release_name: "Build v12"
           body: |
             **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
