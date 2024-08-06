@@ -48,13 +48,13 @@ jobs:
       - run: npm run-script build
 
       - name: Zip artifact for deployment
-        run: zip dist.zip ./* -r
+        run: zip release.zip ./dist -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: node-app
-          path: ./dist
+          path: dist.zip
           
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v4
@@ -89,8 +89,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v13
-          release_name: "Build v13"
+          tag_name: v14
+          release_name: "Build v14"
           body: |
             **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
