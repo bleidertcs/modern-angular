@@ -74,20 +74,12 @@ jobs:
           draft: true
           prerelease: false
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
         with:
-          name: build
-          path: |
-            dist
-          token: ${{ secrets.GITHUB_TOKEN  }}
-          commit: ${{ github.sha }}
-
-      - name: Deploy
-        run: |
-          npm install
-          npm run-script build
-          ls
+          name: node-app
+          path: ./dist
+          
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v4
         
