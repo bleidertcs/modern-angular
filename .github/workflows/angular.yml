@@ -73,8 +73,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name:  v${{ steps.extract_version.outputs.base_version }}
-          release_name: "Build v${{ steps.extract_version.outputs.base_version }}"
+          tag_name:  v${{ steps.version.outputs.content }}
+          release_name: Build v${{ steps.version.outputs.content }}
           body: |
             **🚀 New Release Published!**
             * **Repository:** ${{ github.repository }}
