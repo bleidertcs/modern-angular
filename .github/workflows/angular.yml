@@ -45,7 +45,21 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - run: npm ci
-      - run: npm run build
+      - run: npm run-script build
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: node-app
+          path: ./dist
+          
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist
 
       - uses: actions/checkout@v4
       - uses: fregante/setup-git-user@v2
@@ -71,22 +85,8 @@ jobs:
             * **Latest Commit 3:** ${{ env.LAST_COMMIT }}
             * **Link:** ${{ github.server_url }}/{{ github.repository }}/releases/tag/${{ github.ref  || 'latest' }}
 
-          draft: true
+          draft: false
           prerelease: false
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
-        with:
-          name: node-app
-          path: ./dist
-          
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@releases/v4
-        
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: dist
 
   send_notification:
     runs-on: ubuntu-latest
